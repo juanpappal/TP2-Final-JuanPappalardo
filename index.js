@@ -1,14 +1,21 @@
-import http from 'node:http';
+import 'dotenv/config';
+import express from 'express';
+import sensorsRoutes from './routes/sensors.js';
 
-const hostname = '127.0.0.1';
+const app = express();
 const port = Number(process.env.PORT) || 3001;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello from index.js!\n');
+app.use(express.json());
+app.use(sensorsRoutes);
+
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'API ready' });
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.use((err, req, res, next) => {
+  res.status(err.statusCode || 500).json({ errorMsg: err.message || 'Error interno del servidor' });
+});
+
+app.listen(port, '127.0.0.1', () => {
+  console.log(`Server running at http://127.0.0.1:${port}/`);
 });
